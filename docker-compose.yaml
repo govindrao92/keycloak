@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: keycloak
+    hostname: docker-keycloak.apollodart.com
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpassword
+    ports:
+      - "8085:8080"
+      - "5441:5441"
+    depends_on:
+      - keycloak-db
+    networks:
+      - api-net
+    command:
+      # Start Keycloak in development mode (use "start" for production)
+      - start-dev
+
+
+  keycloak-db:
+    image: postgres:15
+    container_name: keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloakpassword
+    networks:
+      - api-net
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+
+volumes:
+  keycloak-db-data:
+
+networks:
+  api-net:
+    external: true
